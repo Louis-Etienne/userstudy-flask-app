@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang=en>
+  <head>
+    <title>User study</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    
+
+  </head>
+  <body>
+
+    <div class="container-fluid">
+      <h1 class="display-5">User study</h1>
+      <p id="msg" style="margin-bottom:5px" class="lead">Of these two objects, which one looks better integrated within the background?</p>
+
+    <div id="allimg">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <img id="imgchoice1" src="pic/blank.png" alt="Image 1" class="img-fluid border border-secondary" cursor: pointer; width:400px; height:400px;">
+            <div style="height:5px"></div>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <img id="imgchoice2" src="pic/blank.png" alt="Image 2" class="img-fluid border border-secondary" cursor: pointer; width:400px; height:400px;">
+            <div style="height:5px"></div>
+          </div>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <button id="btnchoice3" type="button" class="btn btn-primary btn-lg btn-block bg-secondary border border-secondary" style="width:45%; margin:auto; display:none">Both look equally realistic</button>
+
+      <div class="progress" style="height:35px; width:90%; margin:auto">
+          <div id="pbar" class="progress-bar bg-primary" role="progressbar" style="width:25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">-%</div>
+      </div>
+      
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+    <script>
+      var currentChoice = -1;
+      var pos = -1;
+      var total = 1;
+      var myId = 0;
+      var choiceEnabled = false;
+
+      jQuery.fn.extend({
+          disable: function(state) {
+              return this.each(function() {
+                  this.disabled = state;
+              });
+          }
+      });
+
+      function selectChoice(choiceId){
+          if(!choiceEnabled){
+            return;
+          }
+          choiceEnabled = false;
+          currentChoice = choiceId;
+          $('#modalLoading').show();
+          $.get("sendUserChoice?myid=" + myId + "&pos=" + pos + "&picked=" + currentChoice, processServerDataHandle);
+          currentChoice = -1;
+      }
+
+      function processServerDataHandle(data, status){
+          dataJson = $.parseJSON(data);
+          pos = dataJson['pos'];
+          total = dataJson['total'];
+          currentPct = Math.round(pos / total * 100);
+          myId = dataJson['myId'];
+          isLast = dataJson['isLast'];
+
+          if(isLast == true){
+            $('#pbar').width("100%");
+            $('#pbar').text("100%");
+            $('#msg').text("Thank you for your participation!");
+            $('#allimg').hide();
+          }
+          else{
+            $('#imgchoice1').attr("src", dataJson['imgsrc1']);
+            $('#imgchoice2').attr("src", dataJson['imgsrc2']);
+            var original_url = dataJson['imgsrc2'].replace("result_ours_caricatures", "originals").replace("result_other_caricatures", "originals").replace("result_ours_cartoons", "originals").replace("result_other_cartoons", "originals").replace(".jpg", ".png");
+            $('#original').attr("src", original_url);
+            $('#pbar').width("" + currentPct + "%");
+            $('#pbar').text("" + currentPct + "%");
+
+            $('#imgchoice2').on('load', function(){
+              setTimeout(function(){
+                choiceEnabled = true;
+              }, 500);
+            });
+          }
+      }
+
+      $(document).ready(function(){
+        $('#imgchoice1').on({
+          'click': function(){
+            selectChoice(1);
+          }
+        });
+        $('#imgchoice2').on({
+          'click': function(){
+            selectChoice(2);
+          }
+        });
+
+        $('#btnchoice1').on({
+          'click': function(){
+            selectChoice(1);
+          }
+        });
+        $('#btnchoice2').on({
+          'click': function(){
+            selectChoice(2);
+          }
+        });
+        $('#btnchoice3').on({
+          'click': function(){
+            selectChoice(3);
+          }
+        });
+
+        choiceEnabled = false;
+        $.get("requestInitialData", processServerDataHandle);
+      });
+
+    </script>
+  </body>
+</html>
