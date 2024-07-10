@@ -1,7 +1,8 @@
 # User study Flask app
 
-A Flask app for a user study where the user is asked to choose between two images. The images should be in the `/pic/background/` and `/pic/distorted/` folders. The app can be deployed to Google Cloud App Engine with:
+A Flask app for a user study where the user is asked to choose between two images. The images should be in the `/pic/background/` and `/pic/distorted/` folders.
 
+First set up a virtual environment and install the required packages:
 ```
 conda create -n user_study python
 conda activate user_study
