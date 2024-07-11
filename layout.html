@@ -60,7 +60,8 @@
       });
 
       function selectChoice(choiceId){
-          if(!choiceEnabled){
+        console.log('choice : ' + choiceId)  
+        if(!choiceEnabled){
             return;
           }
           choiceEnabled = false;
@@ -95,7 +96,7 @@
             $('#imgchoice2').on('load', function(){
               setTimeout(function(){
                 choiceEnabled = true;
-              }, 500);
+              }, 300);
             });
           }
       }
