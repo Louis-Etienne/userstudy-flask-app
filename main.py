@@ -96,6 +96,7 @@ def getRandomPairs(currentUid):
     # Get the pairs
     random.seed(currentUid)
     GT_choice_images = random.sample(GT_ALL_IMAGES, total_number_images)
+    random.shuffle(GT_choice_images)
     pairs = []
     for i,technique in enumerate(listTechniques):
         head_technique = technique[len(IMAGE_FOLDER_NAME)+1: -1]
@@ -139,7 +140,7 @@ def reqChoice():
     pairs = pairs.split(',')   
     pairs = [[pairs[i], pairs[i+1]] for i,x in enumerate(pairs) if i%2==0]
     image1, image2 = getPairAtPos(pairs, pos, clientId)
-    
+    print(pairs)
     split_im1 = image1.split("\\")
     split_im2 = image2.split("\\")
     # For linux path system
