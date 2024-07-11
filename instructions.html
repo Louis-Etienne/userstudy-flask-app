@@ -1,76 +1,74 @@
 <html>
-  <head>
-    <title>User study</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  
-    <style>
-       .border-10{
-         border-width:10px !important;
-         }
-    </style>
-  </head>
-  <body>
+<head>
+  <title>User study</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <div class="container">
-      <h1 class="display-5">User Study</h1>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-      <p class="lead">You will be presented with pairs of background images containing inserted virtual objects. The two objects will have different shapes. 
-          <span style="font-weight:bold">You must click on the image where the object looks better within the background.</span> See the examples below.<br/>
-          <!-- For example, in the pair of images below, even tough the cylinder from image B seems more straight (less distorted), the cylinder from image A seems <span style="font-weight:bold">better integrated with the background</span>, so you would click on image <span style="font-weight:bold">A</span>.
+  <style>
+    .border-10 {
+      border-width: 10px !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1 class="display-5">User Study - virtual object insertion</h1>
+
+    <p class="lead"> You will be shown pairs of images where a virtual object has been inserted. You are asked to answer
+      which image looks more realistic, by considering both the appearance of the object and it's effect on the
+      background.
+     
+      <!-- For example, in the pair of images below, even tough the cylinder from image B seems more straight (less distorted), the cylinder from image A seems <span style="font-weight:bold">better integrated with the background</span>, so you would click on image <span style="font-weight:bold">A</span>.
       </p> -->
+    </p>
+    <p class="lead">
+      <span style="font-weight:bold">In order to correctly see the images, it is recommended to answer this form on a
+        computer (not a phone) and to zoom in to see in fullscreen the two images</span> <br>See the example below<br />
+    </p>
+    <div class="row">
 
-      <div class="row">
+      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <h1>A</h1>
-          <span style =border-width:10px !important>
+        <span style=border-width:10px !important>
           <!-- <img src=https://i.imgur.com/6sRtLGt.jpg class="img-fluid border border-success border-10" > -->
-          <img src=https://i.imgur.com/qpDSrqQ.jpg class="img-fluid border border-success border-10" >
+          <img src='static/img1_pair1.png' class="img-fluid border border-10">
 
         </span>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <h1>B</h1>
-          <!-- <img src=https://i.imgur.com/WgAoimt.jpg class="img-fluid border border-danger border-10"> -->
-          <img src=https://i.imgur.com/2Zj0tcn.jpg class="img-fluid border border-danger border-10">
-
-        </div>
-
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <h1>A</h1>
-          <span style =border-width:10px !important>
-          <!-- <img src=https://i.imgur.com/6sRtLGt.jpg class="img-fluid border border-success border-10" > -->
-          <img src=https://i.imgur.com/HSLqqgN.jpg class="img-fluid border border-danger border-10" >
-
-        </span>
-        </div>
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <h1>B</h1>
-          <!-- <img src=https://i.imgur.com/WgAoimt.jpg class="img-fluid border border-danger border-10"> -->
-          <img src=https://i.imgur.com/EoKVYhP.jpg class="img-fluid border border-success border-10">
-
-        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <!-- <img src=https://i.imgur.com/WgAoimt.jpg class="img-fluid border border-danger border-10"> -->
+        <img src='static/img1_pair2.png' class="img-fluid border border-10">
 
       </div>
 
-      <p class="lead">
-        <br/>
-        Please only consider the shape of the objects to make a choice, and disregard any unrealistic lighting, shadow, or object placement. If both images look equally good, select one randomly. A total of <span style="font-weight:bold">50 pairs</span> will be shown, which should take about <span style="font-weight:bold">10 minutes</span>. Your answer is automatically saved when you go to the next image. Thank you for your participation!
-      </p>
+    </div>
 
-      
-
-
-
-      <a role="button" class="btn btn-primary btn-lg btn-block bg-primary border border-primary d-none d-block" style="width:45%; margin:auto; margin-bottom:10px; color:#f0f0f0; font-weight:bold; white-space: normal" href="/start">Click here to begin the user study</a>
-
-      <!-- <a role="button" class="btn btn-primary btn-lg btn-block bg-danger border border-danger d-lg-none" style="width:85%; margin:auto; margin-bottom:10px; color:#f0f0f0; font-weight:bold" href="#">Your screen is too small to participate to the user study.</a> -->
+    <p class="lead">
+      <br />
+      Please take a total of only <span style="font-weight:bold">5 seconds</span> to examine both images shown. If both images look equally good, select one randomly. A total of <span
+        style="font-weight:bold">140 pairs</span> will be shown, which should take about <span
+        style="font-weight:bold">10 minutes</span>. Your answer is automatically saved when you go to the next image.
+      Thank you for your participation!
+    </p>
 
 
-      <!-- <div class="d-none d-lg-block">
+
+
+
+    <a role="button" class="btn btn-primary btn-lg btn-block bg-primary border border-primary d-none d-block"
+      style="width:45%; margin:auto; margin-bottom:10px; color:#f0f0f0; font-weight:bold; white-space: normal"
+      href="/start">Click here to begin the user study</a>
+
+    <!-- <a role="button" class="btn btn-primary btn-lg btn-block bg-danger border border-danger d-lg-none" style="width:85%; margin:auto; margin-bottom:10px; color:#f0f0f0; font-weight:bold" href="#">Your screen is too small to participate to the user study.</a> -->
+
+
+    <!-- <div class="d-none d-lg-block">
       <div class="row">
             <div class="col-sm" style="text-align:right;">
                 <img id="imgchoice1" src="pic/exBad.jpg" class="img-fluid border border-danger" style="border-width:11px !important; cursor: pointer;">
@@ -84,11 +82,16 @@
       </div>
       </div>-->
 
-    </div>
+  </div>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
 
-  </body>
+</body>
+
 </html>
