@@ -14,14 +14,11 @@ from flask import render_template, request, send_file, send_from_directory, g
 
 import pymysql
 
-db_user = os.environ.get('CLOUD_SQL_USERNAME')
-db_password = os.environ.get('CLOUD_SQL_PASSWORD')
-db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME')
+db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
+db_password = os.environ.get('CLOUD_SQL_PASSWORD', 'user-study-wacv-888')
+db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'userstudy_results')
 db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
-
-def secure_filename(filename):
-    return filename.replace("/", "_").replace("\\", "_").strip()
-
+HOST_NAME = '34.42.129.192'
 
 app = Flask(__name__)
 currentUid = 0
@@ -62,19 +59,13 @@ for p in pairs:
 
 numberOfPairsShown = total_number_images
 
+
+def secure_filename(filename):
+    return filename.replace("/", "_").replace("\\", "_").strip()
+
 def connect_to_database():
-    if os.environ.get('GAE_ENV') == 'standard':
-        # If deployed, use the local socket interface for accessing Cloud SQL
-        unix_socket = '/cloudsql/{}'.format(db_connection_name)
-        db = pymysql.connect(user=db_user, password=db_password,
-                                unix_socket=unix_socket, db=db_name)
-    else:
-        # If running locally, use the TCP connections instead
-        # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
-        # so that your application can use 127.0.0.1:3306 to connect to your
-        # Cloud SQL instance
-        host = '127.0.0.1'
-        db = pymysql.connect(user=db_user, password=db_password,
+    host = HOST_NAME
+    db = pymysql.connect(user=db_user, password=db_password,
                                 host=host, db=db_name)
     return db
 
@@ -150,13 +141,10 @@ def reqChoice():
     else:
         GT_position = 2
         technique_crop = split_im1[1]
-        
-    print(clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
-    
 
     with get_db().cursor() as cur:
         data = (clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
-        cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', '{}', '{}', '{}', {})".format(*data))
+        cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', {}, {}, '{}', '{}')".format(*data))
 
     get_db().commit()
 
