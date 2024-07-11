@@ -66,13 +66,29 @@
           }
           choiceEnabled = false;
           currentChoice = choiceId;
+          data = {
+            myid : myId,
+            pos : pos,
+            picked : currentChoice,
+            pairs : pairs,
+          }
+
           $('#modalLoading').show();
-          $.post("sendUserChoice?myid=" + myId + "&pos=" + pos + "&picked=" + currentChoice + "&pairs=" + pairs, processServerDataHandle);
+          $.ajax({
+            url:'sendUserChoice',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: processServerDataHandle
+          })
           currentChoice = -1;
       }
 
       function processServerDataHandle(data, status){
+          data = JSON.stringify(data)
           dataJson = $.parseJSON(data);
+          console.log(dataJson)
           pos = dataJson['pos'];
           total = dataJson['total'];
           currentPct = Math.round(pos / total * 100);

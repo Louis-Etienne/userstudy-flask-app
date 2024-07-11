@@ -9,7 +9,7 @@ import random
 import time
 from copy import deepcopy
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask import render_template, request, send_file, send_from_directory, g
 
 import pymysql
@@ -123,24 +123,24 @@ def reqInitial():
     pairs = getRandomPairs(currentUid)
     
     firstPair = getPairAtPos(pairs, 0, currentUid)
-    return json.dumps({'myId': currentUid,
+    data = {'myId': currentUid,
                         'pos': 0,
                         'total': numberOfPairsShown,
                         'isLast': False,
                         'imgsrc1': "{}".format(firstPair[0]),
                         'imgsrc2': "{}".format(firstPair[1]),
-                        'pairs': pairs})
+                        'pairs': pairs}
+    return jsonify(data)
 
 @app.route("/sendUserChoice", methods=['POST'])
 def reqChoice():
-    clientId = request.args.get('myid', type=int)
-    pos = request.args.get('pos', type=int)
-    choice = request.args.get('picked', type=int)
-    pairs = request.args.get('pairs')
-    pairs = pairs.split(',')   
-    pairs = [[pairs[i], pairs[i+1]] for i,x in enumerate(pairs) if i%2==0]
+    jsonData = request.get_json()
+    clientId = jsonData['myid']
+    pos = jsonData['pos']
+    choice = jsonData['picked']
+    pairs = jsonData['pairs']
     image1, image2 = getPairAtPos(pairs, pos, clientId)
-    print(pairs)
+    
     split_im1 = image1.split("\\")
     split_im2 = image2.split("\\")
     # For linux path system
@@ -162,22 +162,24 @@ def reqChoice():
     get_db().commit()
 
     if pos + 1 == numberOfPairsShown:
-        return json.dumps({'myId': clientId,
+        data = {'myId': clientId,
                             'pos': pos + 1,
                             'total': numberOfPairsShown,
                             'isLast': True,
                             'imgsrc1': f"{IMAGE_FOLDER_NAME}/blank.png",
                             'imgsrc2': f"{IMAGE_FOLDER_NAME}/blank.png",
-                            'pairs': pairs})
+                            'pairs': pairs}
+        return jsonify(data)
     else:
         nextPair = getPairAtPos(pairs, pos+1, clientId)
-        return json.dumps({'myId': clientId,
-                            'pos': pos + 1,
-                            'total': numberOfPairsShown,
-                            'isLast': False,
-                            'imgsrc1': "{}".format(nextPair[0]),
-                            'imgsrc2': "{}".format(nextPair[1]),
-                            'pairs': pairs})
+        data = {'myId': currentUid,
+                        'pos': pos+1,
+                        'total': numberOfPairsShown,
+                        'isLast': False,
+                        'imgsrc1': "{}".format(nextPair[0]),
+                        'imgsrc2': "{}".format(nextPair[1]),
+                        'pairs': pairs}
+        return jsonify(data)
 
 @app.after_request
 def add_header(r):
