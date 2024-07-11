@@ -34,30 +34,11 @@ number_techniques = len(listTechniques)
 total_number_images = NUMBER_IMAGES_PER_TECHNIQUE * number_techniques
 
 GT_ALL_IMAGES = glob(os.path.join(IMAGE_FOLDER_NAME, GT_FOLDER, "*"))
-GT_choice_images = random.sample(GT_ALL_IMAGES, total_number_images)
-
-# Pairs 20 GT images with each technique
-pairs = []
-for i,technique in enumerate(listTechniques):
-    head_technique = technique[len(IMAGE_FOLDER_NAME)+1: -1]
-    offset = i * NUMBER_IMAGES_PER_TECHNIQUE
-    for j in range(20):
-        GT_path = GT_choice_images[offset + j]
-        pairs.append([GT_path, GT_path.replace(GT_FOLDER, head_technique)])
-
+numberOfPairsShown = total_number_images
 
 # from pprint import pprint
 # pprint(pairs)
 
-# First shuffling, we will shuffle them again (per user)
-random.shuffle(pairs)
-for p in pairs:
-    if random.random() > 0.5:
-        tmp = p[1]
-        p[1] = p[0]
-        p[0] = tmp
-
-numberOfPairsShown = total_number_images
 
 
 def secure_filename(filename):
@@ -94,7 +75,7 @@ def get_pic(filename):
     return send_from_directory(f"{IMAGE_FOLDER_NAME}", filename, as_attachment=True)
 
 
-def getPairAtPos(pos, userid):
+def getPairAtPos(pairs, pos, userid):
     # If not using sentinels
     pairsclone = deepcopy(pairs)[:numberOfPairsShown]
 
@@ -111,26 +92,54 @@ def getPairAtPos(pos, userid):
             p[0] = tmp
     return pairsclone[pos]
 
+def getRandomPairs(currentUid):
+    # Get the pairs
+    random.seed(currentUid)
+    GT_choice_images = random.sample(GT_ALL_IMAGES, total_number_images)
+    pairs = []
+    for i,technique in enumerate(listTechniques):
+        head_technique = technique[len(IMAGE_FOLDER_NAME)+1: -1]
+        offset = i * NUMBER_IMAGES_PER_TECHNIQUE
+        for j in range(20):
+            GT_path = GT_choice_images[offset + j]
+            pairs.append([GT_path, GT_path.replace(GT_FOLDER, head_technique)])
+    
+    # Shuffle the pairs
+    random.shuffle(pairs)
+    for p in pairs:
+        if random.random() > 0.5:
+            tmp = p[1]
+            p[1] = p[0]
+            p[0] = tmp
+            
+    return pairs
+
 @app.route("/requestInitialData", methods=['GET'])
 def reqInitial():
     global currentUid
-
     currentUid += 1
-    firstPair = getPairAtPos(0, currentUid)
+    
+    pairs = getRandomPairs(currentUid)
+    
+    firstPair = getPairAtPos(pairs, 0, currentUid)
     return json.dumps({'myId': currentUid,
                         'pos': 0,
                         'total': numberOfPairsShown,
                         'isLast': False,
                         'imgsrc1': "{}".format(firstPair[0]),
-                        'imgsrc2': "{}".format(firstPair[1])})
+                        'imgsrc2': "{}".format(firstPair[1]),
+                        'pairs': pairs})
 
 @app.route("/sendUserChoice", methods=['GET'])
 def reqChoice():
     clientId = request.args.get('myid', type=int)
     pos = request.args.get('pos', type=int)
     choice = request.args.get('picked', type=int)
-    image1, image2 = getPairAtPos(pos, clientId)
-
+    pairs = request.args.get('pairs')
+    pairs = pairs.split(',')   
+    pairs = [[pairs[i], pairs[i+1]] for i,x in enumerate(pairs) if i%2==0]
+    image1, image2 = getPairAtPos(pairs, pos, clientId)
+    
     split_im1 = image1.split("\\")
     split_im2 = image2.split("\\")
     # For linux path system
@@ -138,7 +147,6 @@ def reqChoice():
         split_im1 = image1.split('/')
         split_im2 = image2.split('/')
     crop = split_im1[2][:-4]
-
     if GT_FOLDER in image1:
         GT_position = 1
         technique_crop = split_im2[1]
@@ -158,15 +166,17 @@ def reqChoice():
                             'total': numberOfPairsShown,
                             'isLast': True,
                             'imgsrc1': f"{IMAGE_FOLDER_NAME}/blank.png",
-                            'imgsrc2': f"{IMAGE_FOLDER_NAME}/blank.png"})
+                            'imgsrc2': f"{IMAGE_FOLDER_NAME}/blank.png",
+                            'pairs': pairs})
     else:
-        nextPair = getPairAtPos(pos+1, clientId)
+        nextPair = getPairAtPos(pairs, pos+1, clientId)
         return json.dumps({'myId': clientId,
                             'pos': pos + 1,
                             'total': numberOfPairsShown,
                             'isLast': False,
                             'imgsrc1': "{}".format(nextPair[0]),
-                            'imgsrc2': "{}".format(nextPair[1])})
+                            'imgsrc2': "{}".format(nextPair[1]),
+                            'pairs': pairs})
 
 @app.after_request
 def add_header(r):

@@ -48,6 +48,7 @@
       var pos = -1;
       var total = 1;
       var myId = 0;
+      var pairs = []
       var choiceEnabled = false;
 
       jQuery.fn.extend({
@@ -65,7 +66,7 @@
           choiceEnabled = false;
           currentChoice = choiceId;
           $('#modalLoading').show();
-          $.get("sendUserChoice?myid=" + myId + "&pos=" + pos + "&picked=" + currentChoice, processServerDataHandle);
+          $.get("sendUserChoice?myid=" + myId + "&pos=" + pos + "&picked=" + currentChoice + "&pairs=" + pairs, processServerDataHandle);
           currentChoice = -1;
       }
 
@@ -76,7 +77,7 @@
           currentPct = Math.round(pos / total * 100);
           myId = dataJson['myId'];
           isLast = dataJson['isLast'];
-
+          pairs = dataJson['pairs'];
           if(isLast == true){
             $('#pbar').width("100%");
             $('#pbar').text("100%");
