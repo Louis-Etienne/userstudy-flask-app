@@ -25,14 +25,32 @@ def secure_filename(filename):
 
 app = Flask(__name__)
 currentUid = 0
-
 random.seed(42)
-listImages = [x[4:] for x in glob("pic/background/*.jpg")]
-pairs = [[x, x.replace("background", "distorted")[:-3] + "jpg"] for x in listImages]
-sentinel = ["background/sentinel.jpg", "distorted/sentinel.jpg"]
 
-from pprint import pprint
-pprint(pairs)
+IMAGE_FOLDER_NAME = 'techniques_png'
+GT_FOLDER = 'GT_emission_envmap'
+NUMBER_IMAGES_PER_TECHNIQUE = 20
+
+listTechniques = glob(IMAGE_FOLDER_NAME + '/*/')
+listTechniques = [x  for x in listTechniques if not GT_FOLDER in x]
+number_techniques = len(listTechniques)
+total_number_images = NUMBER_IMAGES_PER_TECHNIQUE * number_techniques
+
+GT_ALL_IMAGES = glob(os.path.join(IMAGE_FOLDER_NAME, GT_FOLDER, "*"))
+GT_choice_images = random.sample(GT_ALL_IMAGES, total_number_images)
+
+# Pairs 20 GT images with each technique
+pairs = []
+for i,technique in enumerate(listTechniques):
+    head_technique = technique[len(IMAGE_FOLDER_NAME)+1: -1]
+    offset = i * NUMBER_IMAGES_PER_TECHNIQUE
+    for j in range(20):
+        GT_path = GT_choice_images[offset + j]
+        pairs.append([GT_path, GT_path.replace(GT_FOLDER, head_technique)])
+
+
+# from pprint import pprint
+# pprint(pairs)
 
 # First shuffling, we will shuffle them again (per user)
 random.shuffle(pairs)
@@ -42,7 +60,7 @@ for p in pairs:
         p[1] = p[0]
         p[0] = tmp
 
-numberOfPairsShown = 54
+numberOfPairsShown = total_number_images
 
 def connect_to_database():
     if os.environ.get('GAE_ENV') == 'standard':
@@ -80,9 +98,9 @@ def get_instructions():
 def get_study():
     return send_file("layout.html")
 
-@app.route("/pic/<path:filename>", methods=['GET'])
+@app.route(f"/{IMAGE_FOLDER_NAME}/<path:filename>", methods=['GET'])
 def get_pic(filename):
-    return send_from_directory("pic", filename, as_attachment=True)
+    return send_from_directory(f"{IMAGE_FOLDER_NAME}", filename, as_attachment=True)
 
 
 def getPairAtPos(pos, userid):
@@ -112,31 +130,32 @@ def reqInitial():
                         'pos': 0,
                         'total': numberOfPairsShown,
                         'isLast': False,
-                        'imgsrc1': "pic/{}".format(firstPair[0]),
-                        'imgsrc2': "pic/{}".format(firstPair[1])})
+                        'imgsrc1': "{}".format(firstPair[0]),
+                        'imgsrc2': "{}".format(firstPair[1])})
 
 @app.route("/sendUserChoice", methods=['GET'])
 def reqChoice():
     clientId = request.args.get('myid', type=int)
     pos = request.args.get('pos', type=int)
     choice = request.args.get('picked', type=int)
-
     image1, image2 = getPairAtPos(pos, clientId)
 
-    if "sentinel" in image1:
-        cropName = 'sentinel'
-    else:
-        cropName = image1[-37:-4]
+    split_im1 = image1.split("\\")
+    split_im2 = image2.split("\\")
+    crop = split_im1[2][:-4]
 
-    if "background" in image1:
-        image1 = "background"
-        image2 = "distorted"
+    if GT_FOLDER in image1:
+        GT_position = 1
+        technique_crop = split_im2[1]
     else:
-        image1 = "distorted"
-        image2 = "background"
+        GT_position = 2
+        technique_crop = split_im1[1]
+        
+    print(clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
+    
 
     with get_db().cursor() as cur:
-        data = (clientId, datetime.now(), request.remote_addr, cropName, image1, image2, choice)
+        data = (clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
         cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', '{}', '{}', '{}', {})".format(*data))
 
     get_db().commit()
@@ -146,16 +165,16 @@ def reqChoice():
                             'pos': pos + 1,
                             'total': numberOfPairsShown,
                             'isLast': True,
-                            'imgsrc1': "pic/blank.png",
-                            'imgsrc2': "pic/blank.png"})
+                            'imgsrc1': f"{IMAGE_FOLDER_NAME}/blank.png",
+                            'imgsrc2': f"{IMAGE_FOLDER_NAME}/blank.png"})
     else:
         nextPair = getPairAtPos(pos+1, clientId)
         return json.dumps({'myId': clientId,
                             'pos': pos + 1,
                             'total': numberOfPairsShown,
                             'isLast': False,
-                            'imgsrc1': "pic/{}".format(nextPair[0]),
-                            'imgsrc2': "pic/{}".format(nextPair[1])})
+                            'imgsrc1': "{}".format(nextPair[0]),
+                            'imgsrc2': "{}".format(nextPair[1])})
 
 @app.after_request
 def add_header(r):
