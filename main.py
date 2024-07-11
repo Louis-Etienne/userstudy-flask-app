@@ -131,8 +131,12 @@ def reqChoice():
     choice = request.args.get('picked', type=int)
     image1, image2 = getPairAtPos(pos, clientId)
 
-    split_im1 = image1.split("\\").split('/')
-    split_im2 = image2.split("\\").split('/')
+    split_im1 = image1.split("\\")
+    split_im2 = image2.split("\\")
+    # For linux path system
+    if split_im1[0] == image1:
+        split_im1 = image1.split('/')
+        split_im2 = image2.split('/')
     crop = split_im1[2][:-4]
 
     if GT_FOLDER in image1:
