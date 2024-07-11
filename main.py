@@ -115,7 +115,7 @@ def getRandomPairs(currentUid):
             
     return pairs
 
-@app.route("/requestInitialData", methods=['GET'])
+@app.route("/requestInitialData", methods=['POST'])
 def reqInitial():
     global currentUid
     currentUid += 1
