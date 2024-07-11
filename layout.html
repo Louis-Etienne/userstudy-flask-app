@@ -60,7 +60,6 @@
       });
 
       function selectChoice(choiceId){
-        console.log('choice : ' + choiceId)  
         if(!choiceEnabled){
             return;
           }
@@ -88,7 +87,6 @@
       function processServerDataHandle(data, status){
           data = JSON.stringify(data)
           dataJson = $.parseJSON(data);
-          console.log(dataJson)
           pos = dataJson['pos'];
           total = dataJson['total'];
           currentPct = Math.round(pos / total * 100);
