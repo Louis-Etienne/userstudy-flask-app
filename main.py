@@ -131,7 +131,7 @@ def reqInitial():
                         'imgsrc2': "{}".format(firstPair[1]),
                         'pairs': pairs})
 
-@app.route("/sendUserChoice", methods=['GET'])
+@app.route("/sendUserChoice", methods=['POST'])
 def reqChoice():
     clientId = request.args.get('myid', type=int)
     pos = request.args.get('pos', type=int)
