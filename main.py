@@ -133,7 +133,6 @@ def reqChoice():
     pairs = jsonData['pairs']
     image1, image2 = getPairAtPos(pairs, pos)
     crop, GT_position, technique_crop = extractValuesFromPath(image1, image2)
-    print(GT_position, choice, crop, technique_crop)
     with get_db().cursor() as cur:
         data = (clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
         cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', {}, {}, '{}', '{}')".format(*data))
@@ -141,7 +140,7 @@ def reqChoice():
 
     if pos + 1 == numberOfPairsShown:
         data = {'myId': clientId,
-                            'pos': pos + 1,
+                            'pos': pos+1,
                             'total': numberOfPairsShown,
                             'isLast': True,
                             'imgsrc1': f"{IMAGE_FOLDER_NAME}/blank.png",
