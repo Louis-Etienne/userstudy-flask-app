@@ -8,10 +8,8 @@ import base64
 import random
 import time
 from copy import deepcopy
-
 from flask import Flask, jsonify
 from flask import render_template, request, send_file, send_from_directory, g
-
 import pymysql
 
 db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
@@ -25,21 +23,15 @@ currentUid = 0
 random.seed(42)
 
 IMAGE_FOLDER_NAME = 'techniques_png'
-GT_FOLDER = 'GT_emission_envmap'
+GT_FOLDER = 'GT_emission_envmap_filtered'
 NUMBER_IMAGES_PER_TECHNIQUE = 20
 
 listTechniques = glob(IMAGE_FOLDER_NAME + '/*/')
 listTechniques = [x  for x in listTechniques if not GT_FOLDER in x]
 number_techniques = len(listTechniques)
 total_number_images = NUMBER_IMAGES_PER_TECHNIQUE * number_techniques
-
-GT_ALL_IMAGES = glob(os.path.join(IMAGE_FOLDER_NAME, GT_FOLDER, "*"))
+gtAllImages = glob(os.path.join(IMAGE_FOLDER_NAME, GT_FOLDER, "*"))
 numberOfPairsShown = total_number_images
-
-# from pprint import pprint
-# pprint(pairs)
-
-
 
 def secure_filename(filename):
     return filename.replace("/", "_").replace("\\", "_").strip()
@@ -56,46 +48,13 @@ def get_db():
         db = g._database = connect_to_database()
     return db
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-@app.route("/", methods=['GET'])
-def get_instructions():
-    return send_file("instructions.html")
-
-@app.route("/start", methods=['GET'])
-def get_study():
-    return send_file("layout.html")
-
-@app.route(f"/{IMAGE_FOLDER_NAME}/<path:filename>", methods=['GET'])
-def get_pic(filename):
-    return send_from_directory(f"{IMAGE_FOLDER_NAME}", filename, as_attachment=True)
-
-
-def getPairAtPos(pairs, pos, userid):
-    # If not using sentinels
-    pairsclone = deepcopy(pairs)[:numberOfPairsShown]
-
-    # If using sentinels
-    # pairsclone = deepcopy(pairs)[:numberOfPairsShown-1]
-    # pairsclone.append(sentinel)
-
-    random.seed(userid)
-    random.shuffle(pairsclone)
-    for p in pairsclone:
-        if random.random() > 0.5:
-            tmp = p[1]
-            p[1] = p[0]
-            p[0] = tmp
-    return pairsclone[pos]
+def getPairAtPos(pairs, pos):
+    return pairs[pos]
 
 def getRandomPairs(currentUid):
     # Get the pairs
     random.seed(currentUid)
-    GT_choice_images = random.sample(GT_ALL_IMAGES, total_number_images)
+    GT_choice_images = random.sample(gtAllImages, total_number_images)
     random.shuffle(GT_choice_images)
     pairs = []
     for i,technique in enumerate(listTechniques):
@@ -115,14 +74,47 @@ def getRandomPairs(currentUid):
             
     return pairs
 
+def extractValuesFromPath(image1, image2):
+    split_im1 = image1.split("\\")
+    split_im2 = image2.split("\\")
+    # For linux path system
+    if split_im1[0] == image1:
+        split_im1 = image1.split('/')
+        split_im2 = image2.split('/')
+        
+    crop = split_im1[2][:-4]
+    if GT_FOLDER in image1:
+        GT_position = 1
+        technique_crop = split_im2[1]
+    else:
+        GT_position = 2
+        technique_crop = split_im1[1]
+    return crop, GT_position, technique_crop
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+@app.route("/", methods=['GET'])
+def get_instructions():
+    return send_file("instructions.html")
+
+@app.route("/start", methods=['GET'])
+def get_study():
+    return send_file("layout.html")
+
+@app.route(f"/{IMAGE_FOLDER_NAME}/<path:filename>", methods=['GET'])
+def get_pic(filename):
+    return send_from_directory(f"{IMAGE_FOLDER_NAME}", filename, as_attachment=True)
+
 @app.route("/requestInitialData", methods=['POST'])
 def reqInitial():
     global currentUid
     currentUid += 1
-    
     pairs = getRandomPairs(currentUid)
-    
-    firstPair = getPairAtPos(pairs, 0, currentUid)
+    firstPair = getPairAtPos(pairs, 0)
     data = {'myId': currentUid,
                         'pos': 0,
                         'total': numberOfPairsShown,
@@ -139,26 +131,12 @@ def reqChoice():
     pos = jsonData['pos']
     choice = jsonData['picked']
     pairs = jsonData['pairs']
-    image1, image2 = getPairAtPos(pairs, pos, clientId)
-    
-    split_im1 = image1.split("\\")
-    split_im2 = image2.split("\\")
-    # For linux path system
-    if split_im1[0] == image1:
-        split_im1 = image1.split('/')
-        split_im2 = image2.split('/')
-    crop = split_im1[2][:-4]
-    if GT_FOLDER in image1:
-        GT_position = 1
-        technique_crop = split_im2[1]
-    else:
-        GT_position = 2
-        technique_crop = split_im1[1]
-
+    image1, image2 = getPairAtPos(pairs, pos)
+    crop, GT_position, technique_crop = extractValuesFromPath(image1, image2)
+    print(GT_position, choice, crop, technique_crop)
     with get_db().cursor() as cur:
         data = (clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
         cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', {}, {}, '{}', '{}')".format(*data))
-
     get_db().commit()
 
     if pos + 1 == numberOfPairsShown:
@@ -171,7 +149,7 @@ def reqChoice():
                             'pairs': pairs}
         return jsonify(data)
     else:
-        nextPair = getPairAtPos(pairs, pos+1, clientId)
+        nextPair = getPairAtPos(pairs, pos+1)
         data = {'myId': currentUid,
                         'pos': pos+1,
                         'total': numberOfPairsShown,
@@ -192,10 +170,8 @@ def add_header(r):
     r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, public, max-age=0'
     return r
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Web server for the user study')
     parser.add_argument('--port', help='port if using virtual net', type=int, default=8001)
     args = parser.parse_args()
-
     app.run(host='127.0.0.1', port=args.port, debug=False, use_reloader=False)
