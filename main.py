@@ -20,7 +20,6 @@ HOST_NAME = '34.42.129.192'
 
 app = Flask(__name__)
 currentUid = 0
-random.seed(42)
 
 IMAGE_FOLDER_NAME = 'techniques_png'
 GT_FOLDER = 'GT_emission_envmap_filtered'
@@ -53,7 +52,6 @@ def getPairAtPos(pairs, pos):
 
 def getRandomPairs(currentUid):
     # Get the pairs
-    random.seed(currentUid)
     GT_choice_images = random.sample(gtAllImages, total_number_images)
     random.shuffle(GT_choice_images)
     pairs = []
