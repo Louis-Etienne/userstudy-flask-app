@@ -11,7 +11,7 @@ from copy import deepcopy
 
 import pymysql
 
-from main import get_db, HOST_NAME, db_user, db_password, db_name
+from main import get_db, HOST_NAME, db_user, db_password, db_name, db_table_name
 import pandas as pd
 
 connection = pymysql.connect(
@@ -23,7 +23,7 @@ connection = pymysql.connect(
 
 try:
     with connection.cursor() as cursor:
-        sql = "SELECT * FROM userstudy"
+        sql = f"SELECT * FROM {db_table_name}"
         cursor.execute(sql)
         
         results = cursor.fetchall()

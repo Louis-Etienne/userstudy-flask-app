@@ -6,7 +6,7 @@ import pandas as pd
 db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD', 'user-study-wacv-888')
 db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'userstudy_results')
-db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy_test')
+db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy')
 HOST_NAME = '34.42.129.192'
 
 connection = pymysql.connect(

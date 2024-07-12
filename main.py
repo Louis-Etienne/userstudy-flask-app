@@ -14,12 +14,11 @@ import pymysql
 
 db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD', 'user-study-wacv-888')
-db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'user-study')
-db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy_test')
+db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'userstudy_results')
+db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy')
 HOST_NAME = '34.42.129.192'
 
 app = Flask(__name__)
-currentUid = 0
 
 IMAGE_FOLDER_NAME = 'techniques_png'
 GT_FOLDER = 'GT_emission_envmap_filtered'
@@ -109,9 +108,10 @@ def get_pic(filename):
 
 @app.route("/requestInitialData", methods=['POST'])
 def reqInitial():
-    global currentUid
+    #Assign a random number for the userid for user recognition
     currentUid = random.randint(0, 999999999)
-    pairs = getRandomPairs(currentUid)
+    
+    pairs = getRandomPairs()
     firstPair = getPairAtPos(pairs, 0)
     data = {'myId': currentUid,
                         'pos': 0,
@@ -147,7 +147,7 @@ def reqChoice():
         return jsonify(data)
     else:
         nextPair = getPairAtPos(pairs, pos+1)
-        data = {'myId': currentUid,
+        data = {'myId': clientId,
                         'pos': pos+1,
                         'total': numberOfPairsShown,
                         'isLast': False,
