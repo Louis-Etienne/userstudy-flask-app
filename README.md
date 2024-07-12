@@ -9,6 +9,7 @@ The images should be in their respective lighting technique folder in the `IMAGE
    - `IMAGE_FOLDER_NAME` : path to your folder of images relative to the root of the project
    - `GT_FOLDER` : name of the ground truth folder inside the `IMAGE_FOLDER_NAME`
    - `NUMBER_IMAGES_PER_TECHNIQUE` : number of images presented to the user for each technique -> so the total amount of images presented to the user = number of technique * `NUMBER_IMAGES_PER_TECHNIQUE`
+
 3. To get the user-study result, it is recommended to log the results to a MySQL databse, you can change the environment variables in the `app.yml` and the `HOST_NAME` in the `main.py` to log to your own databse
 4. If you want to generate different combinations for the users doing the study you can change the `getRandomPairs` function in the `main.py`
 
