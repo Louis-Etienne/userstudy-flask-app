@@ -4,4 +4,4 @@ env_variables:
     CLOUD_SQL_USERNAME: root
     CLOUD_SQL_PASSWORD: user-study-wacv-888
     CLOUD_SQL_DATABASE_NAME: userstudy_results
-    CLOUD_SQL_CONNECTION_NAME: userstudy-distortion:northamerica-northeast1:userstudy-distortion-results
+    CLOUD_SQL_TABLE_NAME: test

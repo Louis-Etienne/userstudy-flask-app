@@ -6,7 +6,7 @@ import pandas as pd
 db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD', 'user-study-wacv-888')
 db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'userstudy_results')
-db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
+db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy_test')
 HOST_NAME = '34.42.129.192'
 
 connection = pymysql.connect(
@@ -18,13 +18,13 @@ connection = pymysql.connect(
 
 try:
     with connection.cursor() as cursor:
-        sql = "SELECT * FROM userstudy"
+        sql = f"SELECT * FROM {db_table_name}"
         cursor.execute(sql)
         
         results = cursor.fetchall()
         
         column_names = [desc[0] for desc in cursor.description]
         df = pd.DataFrame(results, columns=column_names)
-        print(df)
+        df.to_csv('out.csv')
 finally:
     connection.close()

@@ -14,8 +14,8 @@ import pymysql
 
 db_user = os.environ.get('CLOUD_SQL_USERNAME', 'root')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD', 'user-study-wacv-888')
-db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'userstudy_results')
-db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
+db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME', 'user-study')
+db_table_name = os.environ.get('CLOUD_SQL_TABLE_NAME', 'userstudy_test')
 HOST_NAME = '34.42.129.192'
 
 app = Flask(__name__)
@@ -50,7 +50,7 @@ def get_db():
 def getPairAtPos(pairs, pos):
     return pairs[pos]
 
-def getRandomPairs(currentUid):
+def getRandomPairs():
     # Get the pairs
     GT_choice_images = random.sample(gtAllImages, total_number_images)
     random.shuffle(GT_choice_images)
@@ -110,7 +110,7 @@ def get_pic(filename):
 @app.route("/requestInitialData", methods=['POST'])
 def reqInitial():
     global currentUid
-    currentUid += 1
+    currentUid = random.randint(0, 999999999)
     pairs = getRandomPairs(currentUid)
     firstPair = getPairAtPos(pairs, 0)
     data = {'myId': currentUid,
@@ -133,7 +133,7 @@ def reqChoice():
     crop, GT_position, technique_crop = extractValuesFromPath(image1, image2)
     with get_db().cursor() as cur:
         data = (clientId, datetime.now(), request.remote_addr, GT_position, choice, crop, technique_crop)
-        cur.execute("INSERT INTO userstudy VALUES ({}, '{}', '{}', {}, {}, '{}', '{}')".format(*data))
+        cur.execute(f"INSERT INTO {db_table_name} VALUES ({clientId}, '{datetime.now()}', '{request.remote_addr}', {GT_position}, {choice}, '{crop}', '{technique_crop}')")
     get_db().commit()
 
     if pos + 1 == numberOfPairsShown:
