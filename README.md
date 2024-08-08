@@ -26,12 +26,12 @@ To run the app locally:
 python main.py
 ```
 
-To deploy on Google Cloud App Engine:
+#### To deploy on Google Cloud App Engine:
 
 1. Create a [MySQL database](https://cloud.google.com/sql/docs/mysql/create-instance) on Google Cloud SQL to store the results and fill-in the details in `main.py` and `app.yaml`.
 2. Follow the tutorial [here](https://cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-python-service) to deploy the flask app to Google Cloud.
 
-Other way to deploy easily on Google Cloud App Engine : 
+#### Other way to deploy easily on Google Cloud App Engine : 
 
 1. Activate the Cloud Shell : ![image](https://github.com/user-attachments/assets/33eab265-ccc7-486e-9c10-adb0fd1877bd)
 2. In the Cloud Shell, clone this repo with a git command : `git clone https://github.com/Louis-Etienne/userstudy-flask-app.git`
